@@ -1,0 +1,407 @@
+<div class="consulta-por-codigo-drive">
+  <mat-form-field style="width: 120px; margin-right: 25px !important">
+    <mat-label>Código Drive</mat-label>
+    <input matInput [(ngModel)]="codigoDrive" />
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="consultarFundo()"
+    [disabled]="codigoDrive === null || codigoDrive === ''"
+    style="margin-right: 25px !important"
+  >
+    Buscar
+  </button>
+
+  <button mat-button (click)="openDialog()" mat-raised-button>
+    <mat-icon>info</mat-icon>
+  </button>
+</div>
+
+<div class="informacao-fundo">
+  <li *ngFor="let f of fundo">
+    <h3 class="badge">{{ f[1] }} - {{ f[2] }}</h3>
+  </li>
+</div>
+
+<mat-progress-spinner
+  mode="indeterminate"
+  diameter="50"
+  strokeWidth="10"
+  *ngIf="loadding"
+></mat-progress-spinner>
+<mat-toolbar *ngIf="verify" color="primary" style="margin-bottom: 10px">
+  <h6>
+    {{ value.nome }} - DRIVE
+    {{ value.codigoDrive }}
+  </h6>
+</mat-toolbar>
+<div *ngFor="let value of limites; let i = index">
+  <mat-expansion-panel class="accordion">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Limite
+        <p style="margin-right: 10px; margin-left: 10px">{{ value.tipo }}</p>
+        <strong *ngIf="value.situacao == 'VENCIDO'" class="titleSituation1">{{
+          value.situacao
+        }}</strong>
+        <strong *ngIf="value.situacao != 'VENCIDO'" class="titleSituation2">{{
+          value.situacao
+        }}</strong>
+      </mat-panel-title>
+
+      <mat-panel-description> </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <table class="table">
+      <tr>
+        <th>Súmula</th>
+        <th>Valor</th>
+        <th *ngIf="this.verifyTable[2]">Valor Inferior</th>
+        <th *ngIf="this.verifyTable[3]">valor Superior</th>
+        <th>Data Inicio</th>
+        <th>Data Fim Previsto</th>
+        <th>Data Fim</th>
+        <th *ngIf="this.verifyTable[0]">Acréscimo</th>
+      </tr>
+      <tr class="column" *ngFor="let sums of value.values">
+        <td *ngIf="sums.dataFim == null" class="datafillnull">
+          {{ sums.numero }}
+        </td>
+        <td *ngIf="sums.dataFim == null" class="datafillnull">
+          {{ sums.valorLimite }}
+        </td>
+        <td
+          *ngIf="sums.dataFim == null && this.verifyTable[2]"
+          class="datafillnull"
+        >
+          {{ sums.valorLimiteInferior }}
+        </td>
+        <td
+          *ngIf="sums.dataFim == null && this.verifyTable[2]"
+          class="datafillnull"
+        >
+          {{ sums.valorLimiteSuperior }}
+        </td>
+        <td *ngIf="sums.dataFim == null" class="datafillnull">
+          {{ sums.dataInicio }}
+        </td>
+        <td *ngIf="sums.dataFim == null" class="datafillnull">
+          {{ sums.dataFimPrevisto }}
+        </td>
+        <td *ngIf="sums.dataFim == null" class="datafillnull">
+          {{ sums.dataFim }}
+        </td>
+        <td
+          *ngIf="sums.dataFim == null && this.verifyTable[2]"
+          class="datafillnull"
+        >
+          {{ sums.acrescimoLimite }}
+        </td>
+
+        <td *ngIf="sums.dataFim != null">{{ sums.numero }}</td>
+        <td *ngIf="sums.dataFim != null">{{ sums.valorLimite }}</td>
+        <td *ngIf="this.verifyTable[2] && sums.dataFim != null">
+          {{ sums.valorLimiteInferior }}
+        </td>
+        <td *ngIf="this.verifyTable[3] && sums.dataFim != null">
+          {{ sums.valorLimiteSuperior }}
+        </td>
+        <td *ngIf="sums.dataFim != null">{{ sums.dataInicio }}</td>
+        <td *ngIf="sums.dataFim != null">{{ sums.dataFimPrevisto }}</td>
+        <td *ngIf="sums.dataFim != null">{{ sums.dataFim }}</td>
+        <td *ngIf="this.verifyTable[0] && sums.dataFim != null">
+          {{ sums.acrescimoLimite }}
+        </td>
+      </tr>
+    </table>
+    <mat-action-row>
+      <button
+        (click)="abrirCadastroLimite(value.tipo)"
+        mat-flat-button
+        color="primary"
+      >
+        Nova Súmula
+      </button>
+      <button
+        *ngIf="value.situacao == 'VENCIDO'"
+        disabled
+        (click)="deleteSumula(value.tipo)"
+        mat-mini-fab
+        color="warn"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button
+        *ngIf="value.situacao != 'VENCIDO'"
+        (click)="deleteSumula(value)"
+        mat-mini-fab
+        color="warn"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-action-row>
+  </mat-expansion-panel>
+</div>
+<button
+  mat-flat-button
+  (click)="getTiposSumulas()"
+  *ngIf="novoLimite"
+  color="primary"
+>
+  Novo Limite
+</button>
+
+<mat-form-field class="tipolimite" *ngIf="limiteDiferentes">
+  <mat-label>Selecione o tipo </mat-label>
+  <mat-select [(ngModel)]="selectedValue" name="food">
+    <mat-option *ngFor="let limite of limiteDiferentes" [value]="limite">
+      <p (click)="abrirCadastroLimite(limite)">{{ limite }}</p>
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<div class="modal fade my-modal" tabindex="-1" role="dialog" #myModal>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Adicionar sumula</h5>
+        <button
+          type="button"
+          class="close"
+          (click)="close()"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">...</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade my-modal" tabindex="-1" role="dialog" #myDelete>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        Você deseja encerrar o limite {{ type }}?
+        <button
+          style="margin-right: 10px; margin-left: 40px"
+          mat-flat-button
+          color="warn"
+          (click)="encerraLimite()"
+        >
+          Sim
+        </button>
+        <button (click)="closeSumula()" mat-raised-button>Não</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade my-modal"
+  id="tablemodal"
+  tabindex="-1"
+  role="dialog"
+  #cadastroLimite
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <mat-card class="titulo"> {{ nomeLimite }}  </mat-card>
+        
+        
+        
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="limiteForm" (ngSubmit)="cadastrarNovoLimite()">
+          <table class="table">
+            <tr>
+              <th>Súmula</th>
+              <th>Data Inicio</th>
+              <th>Data Fim Previsto</th>
+
+            </tr>
+            <tr class="columnModalLimite">
+              <td>
+                <p
+                  [ngClass]="{
+                    'has-error': isSubmitted && formControls.sumula.errors
+                  }"
+                >
+                  <input
+                    type="text"
+                    class="campo"
+                    placeholder="Sumula"
+                    formControlName="sumula"
+                  />
+                </p>
+
+                <div
+                  *ngIf="isSubmitted && formControls.sumula.errors"
+                  class="help-block"
+                >
+                  <div *ngIf="formControls.sumula.errors.required">
+                    Sumula é obrigatório
+                  </div>
+                </div>
+              </td>
+              <td>
+                <p
+                  [ngClass]="{
+                    'has-error': isSubmitted && formControls.datainicio.errors
+                  }"
+                >
+                  <input
+                  class="campo"
+                    type="text"
+                    placeholder="Data Início"
+                    formControlName="datainicio"
+                  />
+                </p>
+
+                <div
+                  *ngIf="isSubmitted && formControls.datainicio.errors"
+                  class="help-block"
+                >
+                  <div *ngIf="formControls.datainicio.errors.required">
+                    Data Ínicio é obrigatório
+                  </div>
+                </div>
+              </td>
+              <td>
+                <p
+                  [ngClass]="{
+                    'has-error': isSubmitted && formControls.fimPrevisto.errors
+                  }"
+                >
+                  <input
+                    type="text"
+                    class="campo"
+                    placeholder="Fim previsto"
+                    formControlName="fimPrevisto"
+                  />
+                </p>
+
+                <div
+                  *ngIf="isSubmitted && formControls.fimPrevisto.errors"
+                  class="help-block"
+                >
+                  <div *ngIf="formControls.fimPrevisto.errors.required">
+                    Fim Previsto é obrigatório
+                  </div>
+                </div>
+              </td>
+             
+            </tr>
+          </table>
+          <br />
+          <table class="table">
+            <tr>
+              <th *ngIf="nomeLimite != 'DURATION_DIFERENCIAL' &&  nomeLimite != 'VAR_DIFERENCIAL'">Valor</th>
+              <th *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">Valor Inferior</th>
+              <th>Acréscimo Limite</th>
+              <th
+                *ngIf="
+                  nomeLimite != 'VAR_ABSOLUTO' &&
+                  nomeLimite != 'ALAVANCAGEM' &&
+                  nomeLimite != 'DURATION' &&
+                  nomeLimite != 'ESTRESSE'
+                "
+              >
+                Período
+              </th>
+              <th *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">valor Superior</th>
+              <th *ngIf="nomeLimite == 'TRACKING_ERROR'">Acréscimo</th>
+            </tr>
+            <tr class="columnModalLimite">
+              <td *ngIf="nomeLimite != 'DURATION_DIFERENCIAL' &&  nomeLimite != 'VAR_DIFERENCIAL'">
+                <input
+                  type="text"
+                  class="campo"
+                  placeholder="Valor"
+                  formControlName="valor"
+                />
+              </td>
+              <td *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">
+                <input
+                  type="text"
+                  class="campo"
+                  placeholder="Valor Inferior"
+                  formControlName="valorinferior"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="campo"
+                  placeholder="acrecimo limite"
+                  formControlName="acrecimoLimite"
+                />
+              </td>
+              <td *ngIf="
+              nomeLimite != 'VAR_ABSOLUTO' &&
+              nomeLimite != 'ALAVANCAGEM' &&
+              nomeLimite != 'DURATION' &&
+              nomeLimite != 'ESTRESSE'
+            ">
+                <input
+                
+                  type="text"
+                  class="campo"
+                  placeholder="período"
+                  formControlName="periodo"
+                />
+              </td>
+              <td *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">
+                <input
+                  type="text"
+                  class="campo"
+                  placeholder="Valor Superior"
+                  formControlName="valorsuperior"
+                />
+              </td>
+              <td *ngIf="nomeLimite == 'TRACKING_ERROR'">
+                <input
+                  type="text"
+                  class="campo"
+                  placeholder="acrecimo"
+                  formControlName="acrecimo"
+                />
+              </td>
+            </tr>
+          </table>
+          <mat-form-field *ngIf="nomeLimite != 'VAR_ABSOLUTO' &&  nomeLimite != 'ALAVANCAGEM' && nomeLimite != 'DURATION' && nomeLimite != 'ESTRESSE' && nomeLimite != 'VAR_PARAMETRICO' && nomeLimite != 'PERDA_MAXIMA'"  class="tipolimite">
+            <mat-label>Selecione o Indexador </mat-label>
+            <mat-select [(ngModel)]="selectedValue"  formControlName="idindexador" name="food">
+              <mat-option *ngFor="let indexador of indexadores; let i = index"  [value]="indexador.id">
+                <p >{{ indexador.nome }} </p>
+              </mat-option>
+            </mat-select>
+          </mat-form-field><br>
+          <div style=" justify-content: space-between; display: flex;">
+           
+           
+            <button
+            type="button"
+            mat-raised-button color="warn"
+            (click)="fecharCadastroLimite()"
+          >
+            Fechar
+          </button>
+          <button type="submit" mat-raised-button color="primary">Salvar</button>
+          </div>
+        
+        </form>
+      </div>
+     
+    </div>
+  </div>
+</div>

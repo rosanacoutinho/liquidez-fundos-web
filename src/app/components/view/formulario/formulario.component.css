@@ -1,0 +1,133 @@
+.consulta-por-codigo-drive {
+  margin-top: 50px;
+  margin-bottom: 40px;
+}
+
+.inputDado {
+  margin-right: 25px;
+}
+
+.quarta-linha-input-botao {
+  margin-top: 30px;
+}
+
+.accordion {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.fade {
+  opacity: 0;
+  transition: opacity 0.15s linear;
+}
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+.modal-backdrop.fade {
+  opacity: 0;
+}
+.fade.show {
+  opacity: 1;
+}
+
+.my-modal {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+  height: 100vh;
+  width: 0;
+  
+}
+
+.table {
+  width: 100%;
+}
+
+.columnModal td {
+  text-align: center;
+  height: -30px !important;
+}
+
+.columnModal td:hover {
+  background-color: lightgray;
+}
+
+.column td {
+  text-align: center;
+  height: -30px !important;
+}
+
+.column td:hover {
+  background-color: lightgray;
+}
+
+.datafillnull {
+  background-color: rgb(219, 237, 249);
+}
+
+.table tr th {
+  text-align: center;
+}
+
+.titleSituation1{
+  color:orange
+}
+
+.titleSituation2{
+  color:darkblue
+}
+
+.fname{
+  width: 60% !important;
+  padding: 12px 20px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.columnModalLimite td {
+  text-align: center;
+  height: -30px !important;
+}
+
+
+
+.modal-content{
+  width: 200% !important;
+  left: -50%
+}
+
+.tipolimite{
+  margin-left: 10px;
+  height: 30px;
+
+}
+
+.titulo{
+  background-color: #465eff;
+  color: white;
+  font-weight: 400;
+  font-size: 15pt;
+  width: 100%;
+  text-align: center;
+  
+}
+
+.campo{
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+  height: 40px;
+  padding-left: 10px;
+  border: 1px solid lightblue;
+  font-size: 12pt;
+ 
+  color: black !important;
+
+}
+
+.campo:focus {
+  outline: none !important;
+  border:1px solid lightblue;
+  box-shadow: 0 0 10px #719ECE;
+}
+

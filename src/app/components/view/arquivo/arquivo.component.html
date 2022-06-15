@@ -1,0 +1,41 @@
+
+
+<div class="botoes">  
+    <div class="input">
+        <div class="form-group">
+            <label for='selecao-arquivo'>
+                <mat-icon>upload</mat-icon>
+                Selecionar um arquivo
+            </label>
+            <input id='selecao-arquivo' type='file' (change)="handleFileInput($event.target.files)">
+            <span *ngIf='fileToUpload != null' > {{fileToUpload.name}}</span>
+        </div>
+        <button mat-raised-button (click)="uploadFile()" color="primary"  [disabled]="false"> Cadastrar </button>
+    </div>
+    <div class="info">
+    
+        <button class="botao-download" mat-raised-button (click)="downloadFile()" color="secondary">
+        <mat-icon>download</mat-icon> Download Arquivo Modelo </button>
+
+        <button class="botao-download" mat-raised-button (click)="openDialog()" color="secondary">
+            <mat-icon>info</mat-icon> 
+        </button>
+    </div>
+</div>    
+
+<div>
+<img  *ngIf='carregando' class="loading" src="assets/img/loading.gif" alt="loading" id="loadingposition">
+</div>
+
+<div class='resultado' *ngIf ="resultado is null">    
+        <div *ngFor="let r of resultado">
+            <div> 
+            {{ r.drive }} - {{ r.fundo }} - {{ r.tipoCadastro }} - {{ r.tipoLimite }} - {{ r.limite }} <a class="obs"> {{ r.observacao }}</a>
+			</div>
+        </div>
+</div>
+
+<div class='resultado' *ngIf ="error is null">
+    <a class="obs"> {{ error }}</a>
+</div>  
+

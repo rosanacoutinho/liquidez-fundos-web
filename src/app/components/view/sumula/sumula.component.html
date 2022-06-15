@@ -1,0 +1,125 @@
+<div class="consulta-por-codigo-drive">
+    <mat-form-field  style="width:120px ; margin-right:25px !important">
+      <mat-label>Código Drive</mat-label>
+      <input matInput  [(ngModel)]="codigoDrive" >
+    </mat-form-field>  
+    
+    <mat-form-field  style="width:180px !important">
+        <mat-label>Tipo Limite</mat-label>
+        <mat-select [(ngModel)]="tipo">
+          <mat-option *ngFor="let tipo of tipos" [value]="tipo">
+            {{tipo}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button style="margin-left:15px !important"  mat-raised-button color="primary" (click)="consultar()" [disabled]="codigoDrive === null || codigoDrive === '' || tipo === null ">Buscar</button>
+    </div>
+    
+    
+
+<div *ngIf="sumulas is null">
+
+    <h3  class="badge">{{tipo}} - DRIVE {{codigoDrive}}</h3>
+    <table  mat-table class="table row-border hover responsive" >
+        <thead>
+          <tr>
+            <th>ID Limite</th>  
+            <th>Data Inicio</th>
+            <th>Vencimento</th>
+            <th>Numero Sumula</th>
+            <th>Limite</th>
+            <th>Limite inferior</th>
+            <th>Limite Superior</th>
+            <th>Acrescimo Limite</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sumula of sumulas">
+            <td>{{sumula[0]}} </td>  
+            <td>{{sumula[1]}}</td>  
+            <td>{{sumula[7]}}</td>  
+            <td>{{sumula[3]}}</td>  
+            <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="sumula[4]" placeholder="ex.: 0.25 para 25%"> </mat-form-field> </td> 
+            <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="sumula[5]" placeholder="ex.: 0.25 para 25%"> </mat-form-field> </td> 
+            <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="sumula[8]" placeholder="ex.: 0.25 para 25%">  </mat-form-field> </td> 
+            <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="sumula[6]" placeholder="ex.: 0.25 para 25%">  </mat-form-field> </td> 
+        </tr>
+        </tbody>
+    </table>
+
+
+
+
+    <div *ngIf="limiteIndexadores is null">
+      <h3  class="badge">Limite Indexador</h3>
+        <table  mat-table class="table row-border hover responsive" >
+          <thead>
+            <tr>
+              <th>ID Limite</th>  
+              <th *ngIf="tipo !== 'TRACKING_ERROR'">indexador</th>
+              <th>Periodo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let limiteIndexador of limiteIndexadores">
+              <td>{{limiteIndexador[0]}} </td>  
+              <td *ngIf="tipo !== 'TRACKING_ERROR'"> 
+                 <mat-form-field  class='inputDado' style="width:400px !important" >
+                        <mat-label>Indexador</mat-label>
+                        <mat-select [(ngModel)]="indexadorLimite">
+                          <mat-option *ngFor="let indexador of indexadores" [value]="indexador">
+                            {{indexador[1]}} -  {{indexador[2]}}
+                          </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+              </td>  
+              <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="limiteIndexador[2]" placeholder="ex.: 21">  </mat-form-field> </td>  
+          </tr>
+          </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="trackingErrorRetornos is null">
+      <h3  class="badge">Tracking Error Retorno</h3>
+        <table  mat-table class="table row-border hover responsive" >
+          <thead>
+            <tr>
+              <th>ID Limite</th>  
+              <th >Indexador</th>
+              <th>Percentual</th> 
+              <th>Acrescimo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let trackingErrorRetorno of trackingErrorRetornos">
+              <td>{{trackingErrorRetorno[0]}} </td>  
+              <td >
+                <mat-form-field  class='inputDado' style="width:400px !important" >
+                  <mat-label>Indexador</mat-label>
+                  <mat-select [(ngModel)]="indexadorTE">
+                    <mat-option *ngFor="let indexador of indexadores" [value]="indexador">
+                      {{indexador[1]}} -  {{indexador[2]}}
+                    </mat-option>
+                  </mat-select>
+              </mat-form-field>
+        </td>     
+              <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="trackingErrorRetorno[2]" placeholder="ex.: 1.25 para 125%">  </mat-form-field> </td>  
+              <td> <mat-form-field appearance="outline"> <input matInput [(ngModel)]="trackingErrorRetorno[3]" placeholder="ex.: 0.25 para 25%">  </mat-form-field> </td>  
+          </tr>
+          </tbody>
+      </table>
+    </div>
+
+
+
+    <button style="margin-top:15px !important"  mat-raised-button color="primary" (click)="salvar()" [disabled]="false">Salvar</button>
+  
+    
+</div>
+
+
+
+
+       
+     
