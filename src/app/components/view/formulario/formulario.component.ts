@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { CurrencyMaskInputMode } from '../../service/mask/currency-mask.config';
 import { LimiteService } from '../../service/limite.service';
 import { Faixa } from '../../model/faixa.model';
 import { Registro } from '../../model/registro.model';
@@ -13,6 +14,7 @@ import { Subject } from 'rxjs';
 import { Limite } from '../../model/limite.model';
 import { Alert } from 'selenium-webdriver';
 import { Indexador } from '../../model/indexador.model';
+import { Mask3Service } from 'mask3a';
 
 @Component({
   selector: 'app-formulario',
@@ -26,7 +28,8 @@ export class FormularioComponent implements OnInit {
     private limiteService: LimiteService,
     public dialog: MatDialog,
     public FundoService: FundoService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private mask3: Mask3Service
   ) {}
 
   openDialog() {
@@ -36,7 +39,7 @@ export class FormularioComponent implements OnInit {
   fundo: Fundo;
   classificacoes: any[] = null;
   tipos: any[] = null;
-  
+
   cenarios: any[] = null;
   eventos: any[] = null;
   codigoDrive: any = null;
@@ -72,28 +75,34 @@ export class FormularioComponent implements OnInit {
   deleteId: any;
   nomeLimite: any;
   limites: Limite[];
+  save: Boolean;
+  datemask = [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/];
+  reais:String;
 
-  indexadores:Indexador[];
+  valor:any = 0
+
+  indexadores: Indexador[];
 
   limiteForm: FormGroup;
   isSubmitted = false;
 
   ngOnInit(): void {
-  
-    
-
     this.limiteForm = this.formBuilder.group({
       sumula: ['', Validators.required],
       fimPrevisto: ['', Validators.required],
       valor: [''],
-      valorinferior: [''],
-      valorsuperior: [''],
-      datainicio: ['', Validators.required],
+      valorInferior: [''],
+      valorSuperior: [''],
+      dataInicio: ['', Validators.required],
       acrecimo: [''],
       acrecimoLimite: [''],
       periodo: [''],
-      idindexador:[''],
+      idIndexador: [''],
+      
     });
+
+    
+    // Focus on the value input when the demo starts.
   }
 
   @ViewChild('myModal', { static: false }) myModal: ElementRef;
@@ -115,11 +124,71 @@ export class FormularioComponent implements OnInit {
     return this.limiteForm.controls;
   }
 
-  cadastrarNovoLimite() {
+  formatarInput(value){
+    const options = { minimumFractionDigits: 2 };
+      const result = new Intl.NumberFormat('pt-BR', options).format(
+        parseFloat(value) / 100
+      );
+
+      return result + ' %'
+  }
+  
+
+  checkPin(value, event: any) {
+    let verificaString = event.target.value.substr(-1)
+    if (value == 1) {
+      value = this.limiteForm.value.valor.toString().replace('.', '').replace(',', '').replace(/\D/g, '');
+      if(value.length === 0){
+        this.limiteForm.value.valor = "Precisa ser número!"
+        return
+      }
+      this.limiteForm.value.valor = this.formatarInput(value)
+    }
+    if (value == 2) {
+      console.log('aqui')
+      value = this.limiteForm.value.valorInferior.toString().replace('.', '').replace(',', '').replace(/\D/g, '');
+      console.log(value)
+      if(value.length === 0){
+        this.limiteForm.value.valorInferior = "Precisa ser número!"
+        return
+      }
+      this.limiteForm.value.valorInferior = this.formatarInput(value)
+    }
+    if (value == 3) {
+      value = this.limiteForm.value.valorSuperior.toString().replace('.', '').replace(',', '').replace(/\D/g, '');
+      if(value.length === 0){
+        this.limiteForm.value.valorSuperior = "Precisa ser número!"
+        return
+      }
+      this.limiteForm.value.valorSuperior = this.formatarInput(value)
+    }
+    if (value == 4) {
+      value = this.limiteForm.value.acrecimoLimite.toString().replace('.', '').replace(',', '').replace(/\D/g, '');
+      if(value.length === 0){
+        this.limiteForm.value.acrecimoLimite = "Precisa ser número!"
+        return
+      }
+      this.limiteForm.value.acrecimoLimite = this.formatarInput(value)
+    }
+    
+  }
+
+  
+
+  cadastrarNovoLimite(sumula = true) {
     this.isSubmitted = true;
     if (this.limiteForm.invalid) {
       return;
     }
+
+    let valorLimite =  this.limiteForm.value.valor.substr(0, this.limiteForm.value.valor.length - 1) 
+  
+    valorLimite = valorLimite.toString().replace(',', '.');
+
+    valorLimite = valorLimite/100
+    
+     console.log(valorLimite);
+
     let limite = {
       id: null,
       tipo: this.nomeLimite,
@@ -128,23 +197,22 @@ export class FormularioComponent implements OnInit {
       sumula: {
         idLimite: null,
         dataInicio: this.limiteForm.value.dataInicio,
-        dataFim: null,
-        numero: this.limiteForm.value.numero,
-        valorLimite: this.limiteForm.value.valorLimite,
+        dataFim: this.limiteForm.value.dataFim,
+        numero: this.limiteForm.value.sumula,
+        valorLimite: this.limiteForm.value.valor,
         valorLimiteInferior: this.limiteForm.value.valorLimiteInferior,
         acrescimoLimite: this.limiteForm.value.acrescimoLimite,
-        dataFimPrevisto: this.limiteForm.value.dataFimPrevisto,
+        dataFimPrevisto: this.limiteForm.value.fimPrevisto,
         valorLimiteSuperior: this.limiteForm.value.valorLimiteSuperior,
       },
-      idIndexador: null,
+      idIndexador: this.limiteForm.value.idIndexador,
       periodo: null,
       acrescimo: this.limiteForm.value.acrecimo,
       percentual: null,
       faixas: null,
     };
 
-    let lim = limite;
-    console.log(lim)
+   console.log(limite)
 
     if (
       this.nomeLimite == 'VAR_ABSOLUTO' ||
@@ -152,7 +220,6 @@ export class FormularioComponent implements OnInit {
       this.nomeLimite == 'ALAVANCAGEM' ||
       this.nomeLimite == 'DURATION'
     ) {
-
     } else if (
       this.nomeLimite == 'VAR_PARAMETRICO' ||
       this.nomeLimite == 'PERDA_MAXIMA'
@@ -172,29 +239,31 @@ export class FormularioComponent implements OnInit {
     } else {
       alert('Tipo não encontrado!');
     }
-    console.log(this.limiteForm.value);
   }
 
-  abrirCadastroLimite(limite): void {
+  abrirCadastroLimite(limite, value): void {
+    console.log(value);
+    value === 2 ? (this.save = true) : (this.save = false);
     this.nomeLimite = limite;
     console.log(limite);
     console.log(this.codigoDrive);
 
     this.limiteService.getIndexador().subscribe({
       next: (response) => {
-        this.indexadores = response
+        this.indexadores = response;
       },
       error: (error) => {
-
         console.log(error);
       },
-    })
+    });
 
     this.elmLimite.classList.add('show');
     this.elmLimite.style.width = '100vw';
   }
 
   fecharCadastroLimite(): void {
+    this.ngOnInit();
+
     this.elmLimite.classList.remove('show');
     setTimeout(() => {
       this.elmLimite.style.width = '0';
@@ -318,7 +387,6 @@ export class FormularioComponent implements OnInit {
       },
       complete: () => {},
     });
- 
   }
 
   getOverviews(id) {
@@ -354,8 +422,6 @@ export class FormularioComponent implements OnInit {
     });
   }
 
-  
-
   criaVariavelFaixasParaLimitesDescasamento() {
     this.faixas = new Array(6);
     this.faixas[0] = { faixa: null, percentualFaixa: null };
@@ -366,14 +432,6 @@ export class FormularioComponent implements OnInit {
     this.faixas[5] = { faixa: null, percentualFaixa: null };
   }
 
- 
-
-
-
-
-
-
-  
   encerraLimite() {
     this.FundoService.deleteOverviews(this.type).subscribe((response) => {
       console.log(response);

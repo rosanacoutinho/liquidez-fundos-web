@@ -38,8 +38,17 @@
   
 }
 
+.table{
+  border: none !important;
+}
+
+.modal-header{
+  border: none !important;
+}
+
 .table {
   width: 100%;
+  border: none;
 }
 
 .columnModal td {
@@ -131,3 +140,14 @@
   box-shadow: 0 0 10px #719ECE;
 }
 
+.buttonClose{
+  margin-left: 5%;
+  width: 100px;
+  height: 50px;
+}
+
+.buttonSave{
+  margin-right: 5%;
+  width: 100px;
+  height: 50px;
+}

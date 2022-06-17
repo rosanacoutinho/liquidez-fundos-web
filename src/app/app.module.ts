@@ -42,6 +42,8 @@ import { InformativoArquivoComponent } from './components/view/dialogs/informati
 import { OrigemplComponent } from './components/view/origempl/origempl.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
+import { TextMaskModule } from 'angular2-text-mask';
+
 
 
 
@@ -59,6 +61,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
     OrigemplComponent
   ],
   imports: [
+    
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -87,6 +90,8 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
     MatTabsModule,
     CdkAccordionModule,
     MatProgressSpinnerModule,
+    TextMaskModule
+    
     
   ],
   providers: [],

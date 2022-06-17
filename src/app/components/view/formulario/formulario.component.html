@@ -1,3 +1,4 @@
+
 <div class="consulta-por-codigo-drive">
   <mat-form-field style="width: 120px; margin-right: 25px !important">
     <mat-label>Código Drive</mat-label>
@@ -118,7 +119,7 @@
     </table>
     <mat-action-row>
       <button
-        (click)="abrirCadastroLimite(value.tipo)"
+        (click)="abrirCadastroLimite(value.tipo, 1)"
         mat-flat-button
         color="primary"
       >
@@ -157,7 +158,7 @@
   <mat-label>Selecione o tipo </mat-label>
   <mat-select [(ngModel)]="selectedValue" name="food">
     <mat-option *ngFor="let limite of limiteDiferentes" [value]="limite">
-      <p (click)="abrirCadastroLimite(limite)">{{ limite }}</p>
+      <p (click)="abrirCadastroLimite(limite, 2)">{{ limite }}</p>
     </mat-option>
   </mat-select>
 </mat-form-field>
@@ -165,7 +166,7 @@
 <div class="modal fade my-modal" tabindex="-1" role="dialog" #myModal>
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="border: none">
         <h5 class="modal-title">Adicionar sumula</h5>
         <button
           type="button"
@@ -215,193 +216,153 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <mat-card class="titulo"> {{ nomeLimite }}  </mat-card>
-        
-        
-        
+        <mat-card class="titulo"> {{ nomeLimite }} </mat-card>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="border: none !important">
         <form [formGroup]="limiteForm" (ngSubmit)="cadastrarNovoLimite()">
-          <table class="table">
-            <tr>
-              <th>Súmula</th>
-              <th>Data Inicio</th>
-              <th>Data Fim Previsto</th>
+         
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-left: 5%;
+              margin-right: 5%;
+            "
+          >
+            <mat-form-field class="example-full-width" appearance="fill">
+              <mat-label>Súmula</mat-label>
+              <input currencyMask  formControlName="sumula" matInput />
+            
+            </mat-form-field>
+            <mat-form-field class="example-full-width" appearance="fill">
+              <mat-label>Data Inicio</mat-label>
+              <input [textMask]="{mask: datemask}" formControlName="dataInicio" matInput />
+            </mat-form-field>
+            <mat-form-field class="example-full-width" appearance="fill">
+              <mat-label>Data Fim Previsto</mat-label>
+              <input [textMask]="{mask: datemask}" formControlName="fimPrevisto" matInput />
+            </mat-form-field>
+          </div>
 
-            </tr>
-            <tr class="columnModalLimite">
-              <td>
-                <p
-                  [ngClass]="{
-                    'has-error': isSubmitted && formControls.sumula.errors
-                  }"
-                >
-                  <input
-                    type="text"
-                    class="campo"
-                    placeholder="Sumula"
-                    formControlName="sumula"
-                  />
-                </p>
+          
+          <div  style="
+          display: flex;
+          justify-content: space-between;
+          margin-left: 5%;
+          margin-right: 5%;
+        ">
+            <mat-form-field
+              *ngIf="
+                nomeLimite != 'DURATION_DIFERENCIAL' &&
+                nomeLimite != 'VAR_DIFERENCIAL'
+              "
+              class="example-full-width"
+              appearance="fill"
+            >
+              <mat-label>Valor</mat-label>
+              <input (keyup)="checkPin(1, $event)" [value]="this.limiteForm.value.valor" formControlName="valor" matInput />
+            </mat-form-field>
+          
 
-                <div
-                  *ngIf="isSubmitted && formControls.sumula.errors"
-                  class="help-block"
-                >
-                  <div *ngIf="formControls.sumula.errors.required">
-                    Sumula é obrigatório
-                  </div>
-                </div>
-              </td>
-              <td>
-                <p
-                  [ngClass]="{
-                    'has-error': isSubmitted && formControls.datainicio.errors
-                  }"
-                >
-                  <input
-                  class="campo"
-                    type="text"
-                    placeholder="Data Início"
-                    formControlName="datainicio"
-                  />
-                </p>
+          <mat-form-field
+            *ngIf="
+              nomeLimite == 'DURATION_DIFERENCIAL' ||
+              nomeLimite == 'VAR_DIFERENCIAL'
+            "
+            class="example-full-width"
+            appearance="fill"
+          >
+            <mat-label>Valor Inferior</mat-label>
+            <input (keyup)="checkPin(2, $event)" [value]="this.limiteForm.value.valorInferior" formControlName="valorInferior" matInput />
+          </mat-form-field>
 
-                <div
-                  *ngIf="isSubmitted && formControls.datainicio.errors"
-                  class="help-block"
-                >
-                  <div *ngIf="formControls.datainicio.errors.required">
-                    Data Ínicio é obrigatório
-                  </div>
-                </div>
-              </td>
-              <td>
-                <p
-                  [ngClass]="{
-                    'has-error': isSubmitted && formControls.fimPrevisto.errors
-                  }"
-                >
-                  <input
-                    type="text"
-                    class="campo"
-                    placeholder="Fim previsto"
-                    formControlName="fimPrevisto"
-                  />
-                </p>
-
-                <div
-                  *ngIf="isSubmitted && formControls.fimPrevisto.errors"
-                  class="help-block"
-                >
-                  <div *ngIf="formControls.fimPrevisto.errors.required">
-                    Fim Previsto é obrigatório
-                  </div>
-                </div>
-              </td>
-             
-            </tr>
-          </table>
-          <br />
-          <table class="table">
-            <tr>
-              <th *ngIf="nomeLimite != 'DURATION_DIFERENCIAL' &&  nomeLimite != 'VAR_DIFERENCIAL'">Valor</th>
-              <th *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">Valor Inferior</th>
-              <th>Acréscimo Limite</th>
-              <th
-                *ngIf="
-                  nomeLimite != 'VAR_ABSOLUTO' &&
-                  nomeLimite != 'ALAVANCAGEM' &&
-                  nomeLimite != 'DURATION' &&
-                  nomeLimite != 'ESTRESSE'
-                "
-              >
-                Período
-              </th>
-              <th *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">valor Superior</th>
-              <th *ngIf="nomeLimite == 'TRACKING_ERROR'">Acréscimo</th>
-            </tr>
-            <tr class="columnModalLimite">
-              <td *ngIf="nomeLimite != 'DURATION_DIFERENCIAL' &&  nomeLimite != 'VAR_DIFERENCIAL'">
-                <input
-                  type="text"
-                  class="campo"
-                  placeholder="Valor"
-                  formControlName="valor"
-                />
-              </td>
-              <td *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">
-                <input
-                  type="text"
-                  class="campo"
-                  placeholder="Valor Inferior"
-                  formControlName="valorinferior"
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  class="campo"
-                  placeholder="acrecimo limite"
-                  formControlName="acrecimoLimite"
-                />
-              </td>
-              <td *ngIf="
+          <mat-form-field
+            *ngIf="
               nomeLimite != 'VAR_ABSOLUTO' &&
               nomeLimite != 'ALAVANCAGEM' &&
               nomeLimite != 'DURATION' &&
               nomeLimite != 'ESTRESSE'
-            ">
-                <input
-                
-                  type="text"
-                  class="campo"
-                  placeholder="período"
-                  formControlName="periodo"
-                />
-              </td>
-              <td *ngIf="nomeLimite == 'DURATION_DIFERENCIAL' ||  nomeLimite == 'VAR_DIFERENCIAL'">
-                <input
-                  type="text"
-                  class="campo"
-                  placeholder="Valor Superior"
-                  formControlName="valorsuperior"
-                />
-              </td>
-              <td *ngIf="nomeLimite == 'TRACKING_ERROR'">
-                <input
-                  type="text"
-                  class="campo"
-                  placeholder="acrecimo"
-                  formControlName="acrecimo"
-                />
-              </td>
-            </tr>
-          </table>
-          <mat-form-field *ngIf="nomeLimite != 'VAR_ABSOLUTO' &&  nomeLimite != 'ALAVANCAGEM' && nomeLimite != 'DURATION' && nomeLimite != 'ESTRESSE' && nomeLimite != 'VAR_PARAMETRICO' && nomeLimite != 'PERDA_MAXIMA'"  class="tipolimite">
-            <mat-label>Selecione o Indexador </mat-label>
-            <mat-select [(ngModel)]="selectedValue"  formControlName="idindexador" name="food">
-              <mat-option *ngFor="let indexador of indexadores; let i = index"  [value]="indexador.id">
-                <p >{{ indexador.nome }} </p>
-              </mat-option>
-            </mat-select>
-          </mat-form-field><br>
-          <div style=" justify-content: space-between; display: flex;">
-           
-           
-            <button
-            type="button"
-            mat-raised-button color="warn"
-            (click)="fecharCadastroLimite()"
+            "
+            class="example-full-width"
+            appearance="fill"
           >
-            Fechar
-          </button>
-          <button type="submit" mat-raised-button color="primary">Salvar</button>
+            <mat-label>Acréscimo Limite</mat-label>
+            <input (keyup)="checkPin(4, $event)" formControlName="acrecimoLimite" matInput />
+          </mat-form-field>
+
+          <mat-form-field class="example-full-width" appearance="fill">
+            <mat-label>Período</mat-label>
+            <input formControlName="periodo" type="number" matInput />
+          </mat-form-field>
+
+          <mat-form-field
+            *ngIf="
+              nomeLimite == 'DURATION_DIFERENCIAL' ||
+              nomeLimite == 'VAR_DIFERENCIAL'
+            "
+            class="example-full-width"
+            appearance="fill"
+          >
+            <mat-label> valor Superior</mat-label>
+            <input (keyup)="checkPin(3, $event)" [value]="this.limiteForm.value.valorSuperior" formControlName="valorSuperior" matInput />
+          </mat-form-field>
+        </div>
+
+
+
+        <div style="
+        display: flex;
+        justify-content: center;
+        margin-left: 5%;
+        margin-right: 5%;
+        margin-bottom: 50px;
+      ">
+          <mat-form-field
+          appearance="fill"
+          *ngIf="
+            nomeLimite != 'VAR_ABSOLUTO' &&
+            nomeLimite != 'ALAVANCAGEM' &&
+            nomeLimite != 'DURATION' &&
+            nomeLimite != 'ESTRESSE' &&
+            nomeLimite != 'VAR_PARAMETRICO' &&
+            nomeLimite != 'PERDA_MAXIMA'
+          "
+          class="tipolimite"
+        >
+          <mat-label>Selecione o Indexador </mat-label>
+          <mat-select
+            [(ngModel)]="selectedValue"
+            formControlName="idIndexador"
+            name="food"
+           
+          >
+            <mat-option
+              *ngFor="let indexador of indexadores; let i = index"
+              [value]="indexador.id"
+            >
+              <p>{{ indexador.nome }}</p>
+            </mat-option>
+          </mat-select> </mat-form-field
+        >
+        </div>
+       
+          <div style="justify-content: space-between; display: flex">
+            <button
+              type="button"
+              mat-raised-button
+              color="warn"
+              (click)="fecharCadastroLimite()"
+              class="buttonClose"
+            >
+              Fechar
+            </button>
+            <button class="buttonSave" type="submit" mat-raised-button color="primary">
+              Salvar
+            </button>
           </div>
-        
         </form>
       </div>
-     
     </div>
   </div>
 </div>
+
